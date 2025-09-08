@@ -2,7 +2,15 @@ export interface Note {
   id: string;
   title: string;
   content: string;
-  tag: "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
+  tag: string;
   createdAt: string;
-  updatedAt: string; 
+  updatedAt: string;
+}
+
+export interface PaginatedNotes {
+  notes: Note[];
+  total: number;
+  page: number;
+  perPage: number;
+  totalPages: number;
 }

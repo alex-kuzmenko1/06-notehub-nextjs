@@ -1,28 +1,39 @@
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
 import { fetchNotes } from "@/lib/api";
-import NotesClient from "./Notes.client";
+import NotesClient from "./NotesСlient";
 
-const PAGE_SIZE = 12;
+interface NotesPageProps {
+  searchParams: {
+    page?: string;
+    query?: string;
+  };
+}
 
-export default async function NotesPage() {
-  const queryClient = new QueryClient();
+export default async function NotesPage({ searchParams }: NotesPageProps) {
+  const page = Number(searchParams.page) || 1;
+  const query = searchParams.query || "";
 
-  const page = 1;
-  const query = "";
+  try {
+    const result = await fetchNotes(page, 12, query);
 
-  await queryClient.prefetchQuery({
-    queryKey: ["notes", page, query],
-    queryFn: () => fetchNotes(page, PAGE_SIZE, query),
-  });
-
-  return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <NotesClient notes={notes} page={page} query={query} />
-{/* ✅ передаємо пропси */}
-    </HydrationBoundary>
-  );
+    return (
+      <NotesClient 
+        notes={result.notes} 
+        total={result.total} 
+        page={page} 
+        query={query} 
+      />
+    );
+  } catch (error) {
+    console.error("Failed to fetch notes:", error);
+    
+    
+    return (
+      <NotesClient 
+        notes={[]} 
+        total={0} 
+        page={page} 
+        query={query} 
+      />
+    );
+  }
 }

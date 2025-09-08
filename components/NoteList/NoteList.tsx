@@ -26,7 +26,7 @@ export default function NoteList({ notes, page, query }: NoteListProps) {
       setIsDeleting(id);
     },
     onSuccess: () => {
-      // Используем page и query для корректной invalidation
+      
       queryClient.invalidateQueries({ queryKey: ["notes", page, query] });
     },
     onSettled: () => {

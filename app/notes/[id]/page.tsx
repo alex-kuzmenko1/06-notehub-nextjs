@@ -1,4 +1,4 @@
-// app/notes/[id]/page.tsx
+
 import NoteDetailsClient from "./NoteDetails.client";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import { fetchNoteById } from "@/lib/api";
@@ -12,12 +12,12 @@ export default async function NoteDetailsPage({ params }: NoteDetailsPageProps) 
 
   await queryClient.prefetchQuery({
     queryKey: ["note", params.id],
-    queryFn: () => fetchNoteById(params.id), // якщо id:string
+    queryFn: () => fetchNoteById(params.id), 
   });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <NoteDetailsClient id={params.id} /> {/* ✅ тільки id */}
+      <NoteDetailsClient id={params.id} /> {}
     </HydrationBoundary>
   );
 }

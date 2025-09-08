@@ -1,13 +1,5 @@
 import axios, { AxiosResponse } from "axios";
-import { Note } from "@/types/note";
-
-
-export interface PaginatedNotes {
-  notes: Note[];
-  total: number;
-  page: number;
-  perPage: number;
-}
+import { Note, PaginatedNotes } from "@/types/note";
 
 const API_URL = "https://notehub-public.goit.study/api"; 
 const TOKEN = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
@@ -20,7 +12,6 @@ const api = axios.create({
   },
 });
 
-
 export async function fetchNotes(
   page: number,
   perPage: number,
@@ -29,12 +20,16 @@ export async function fetchNotes(
   const params: Record<string, string | number> = { page, perPage };
   if (search) params.search = search;
 
-  const { data }: AxiosResponse<PaginatedNotes> = await api.get("/notes", {
+  const response: AxiosResponse<Omit<PaginatedNotes, 'totalPages'>> = await api.get("/notes", {
     params,
   });
-  return data;
-}
+  
 
+  return {
+    ...response.data,
+    totalPages: Math.ceil(response.data.total / perPage)
+  };
+}
 
 export async function createNote(note: {
   title: string;
@@ -45,12 +40,10 @@ export async function createNote(note: {
   return data;
 }
 
-
 export async function fetchNoteById(id: string): Promise<Note> {
   const { data }: AxiosResponse<Note> = await api.get(`/notes/${id}`);
   return data;
 }
-
 
 export async function deleteNote(id: string): Promise<Note> {
   const { data }: AxiosResponse<Note> = await api.delete(`/notes/${id}`);
