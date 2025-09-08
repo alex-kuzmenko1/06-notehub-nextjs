@@ -1,5 +1,5 @@
 import { fetchNotes } from "@/lib/api";
-import NotesClient from "./NotesСlient";
+import NotesClient from "./Notes.client";
 
 interface NotesPageProps {
   searchParams: Promise<{ 
