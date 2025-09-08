@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { fetchNoteById } from "@/lib/api";
-import styles from "./NoteDetails.module.css";
+import css from "./NoteDetails.module.css";
 
 interface NoteDetailsClientProps {
   id: string;
@@ -23,13 +23,13 @@ export default function NoteDetailsClient({ id }: NoteDetailsClientProps) {
   if (error || !note) return <p>Failed to load note.</p>;
 
   return (
-    <div className={styles.container}>
-      <div className={styles.item}>
-        <div className={styles.header}>
+    <div className={css.container}>
+      <div className={css.item}>
+        <div className={css.header}>
           <h2>{note.title}</h2>
         </div>
-        <p className={styles.content}>{note.content}</p>
-        <p className={styles.date}>{note.createdAt}</p>
+        <p className={css.content}>{note.content}</p>
+        <p className={css.date}>{note.createdAt}</p>
       </div>
     </div>
   );
