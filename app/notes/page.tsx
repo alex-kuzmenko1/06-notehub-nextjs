@@ -2,15 +2,17 @@ import { fetchNotes } from "@/lib/api";
 import NotesClient from "./NotesСlient";
 
 interface NotesPageProps {
-  searchParams: {
+  searchParams: Promise<{ 
     page?: string;
     query?: string;
-  };
+  }>;
 }
 
 export default async function NotesPage({ searchParams }: NotesPageProps) {
-  const page = Number(searchParams.page) || 1;
-  const query = searchParams.query || "";
+  // await searchParams
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const query = params.query || "";
 
   try {
     const result = await fetchNotes(page, 12, query);
@@ -25,7 +27,6 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
     );
   } catch (error) {
     console.error("Failed to fetch notes:", error);
-    
     
     return (
       <NotesClient 
