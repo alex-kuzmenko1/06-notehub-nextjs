@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNote } from "@/lib/api";
 import styles from "./NoteForm.module.css";
-import type { Note } from "../../types/note";
+import type { Note } from "@/types/note";
 
 type NoteTag = Note["tag"];
 
@@ -31,14 +31,12 @@ const validationSchema = Yup.object({
 
 export default function NoteForm({ onCancel }: NoteFormProps) {
   const initialValues: NoteFormValues = { title: "", content: "", tag: "" };
-
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: (note: { title: string; content: string; tag: NoteTag }) =>
       createNote(note),
     onSuccess: () => {
-      
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       onCancel();
     },

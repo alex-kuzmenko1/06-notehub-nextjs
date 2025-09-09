@@ -1,7 +1,8 @@
 "use client";
 
+import * as React from "react"; 
 import { useState, useEffect } from "react";
-import { useQuery, QueryFunctionContext } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { fetchNotes } from "@/lib/api";
 import NoteList from "@/components/NoteList/NoteList";
 import type { PaginatedNotes } from "@/types/pagination";
@@ -28,14 +29,10 @@ export default function NotesClient({ page: initialPage, query }: NotesClientPro
   const [page, setPage] = useState(initialPage);
   const debouncedSearch = useDebounce(search, 500);
 
-  
   const { data, isLoading, error } = useQuery<PaginatedNotes, Error>({
     queryKey: ["notes", page, debouncedSearch],
-    queryFn: ({ queryKey }: QueryFunctionContext) => {
-      const [, pageParam, searchParam] = queryKey as [string, number, string];
-      return fetchNotes(pageParam, 12, searchParam);
-    },
-    staleTime: 1000 * 60, 
+    queryFn: () => fetchNotes(page, 12, debouncedSearch),
+    staleTime: 1000 * 60,
   });
 
   const notes = data?.notes ?? [];
