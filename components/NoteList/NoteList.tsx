@@ -24,6 +24,7 @@ export default function NoteList({ notes }: NoteListProps) {
       setIsDeleting(id);
     },
     onSuccess: () => {
+     
       queryClient.invalidateQueries({ queryKey: ["notes"] });
     },
     onSettled: () => {
@@ -49,10 +50,10 @@ export default function NoteList({ notes }: NoteListProps) {
             <button
               type="button"
               className={styles.button}
-              onClick={() => mutation.mutate(id)}
-              disabled={isDeleting === id}
+              onClick={() => mutation.mutate(String(id))}
+              disabled={isDeleting === String(id)}
             >
-              {isDeleting === id ? "Deleting…" : "Delete"}
+              {isDeleting === String(id) ? "Deleting…" : "Delete"}
             </button>
           </div>
         </li>

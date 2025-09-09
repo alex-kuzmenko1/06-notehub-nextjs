@@ -3,28 +3,30 @@ import { fetchNotes } from "@/lib/api";
 import NotesClient from "./Notes.client";
 
 interface NotesPageProps {
-  searchParams: Promise<{
+  searchParams: {
     page?: string;
     query?: string;
-  }>;
+  };
 }
 
 export default async function NotesPage({ searchParams }: NotesPageProps) {
-  const params = await searchParams;
-  const page = Number(params.page) || 1;
-  const query = params.query || "";
+  const page = Number(searchParams.page) || 1;
+  const query = searchParams.query || "";
 
+  
   const queryClient = new QueryClient();
 
   try {
+    
     await queryClient.prefetchQuery({
       queryKey: ["notes", page, query],
       queryFn: () => fetchNotes(page, 12, query),
+      staleTime: 1000 * 60, // 1 хв
     });
 
     return (
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <NotesClient page={page} query={query} />
+        <NotesClient />
       </HydrationBoundary>
     );
   } catch (error) {
@@ -32,7 +34,7 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
 
     return (
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <NotesClient page={page} query={query} />
+        <NotesClient />
       </HydrationBoundary>
     );
   }

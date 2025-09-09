@@ -4,7 +4,7 @@ import styles from "./Pagination.module.css";
 interface PaginationProps {
   pageCount: number;
   currentPage?: number; 
-  onPageChange: (page: number) => void; 
+  onPageChange: (newPage: number) => void; 
 }
 
 export default function Pagination({
