@@ -1,13 +1,14 @@
 import axios, { AxiosResponse } from "axios";
-import { Note, PaginatedNotes } from "@/types/note";
+import type { Note } from "@/types/note";
+import type { PaginatedNotes } from "@/types/pagination";
 
-const API_URL = "https://notehub-public.goit.study/api"; 
+const API_URL = "https://notehub-public.goit.study/api";
 const TOKEN = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
 
 const api = axios.create({
   baseURL: API_URL,
   headers: {
-    Authorization: `Bearer ${TOKEN}`,
+    Authorization: `Bearer ${TOKEN ?? ""}`,
     "Content-Type": "application/json",
   },
 });
@@ -20,15 +21,12 @@ export async function fetchNotes(
   const params: Record<string, string | number> = { page, perPage };
   if (search) params.search = search;
 
-  const response: AxiosResponse<Omit<PaginatedNotes, 'totalPages'>> = await api.get("/notes", {
+  const { data }: AxiosResponse<PaginatedNotes> = await api.get("/notes", {
     params,
   });
-  
 
-  return {
-    ...response.data,
-    totalPages: Math.ceil(response.data.total / perPage)
-  };
+  
+  return data;
 }
 
 export async function createNote(note: {

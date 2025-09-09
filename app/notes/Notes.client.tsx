@@ -4,38 +4,40 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchNotes } from "@/lib/api";
 import NoteList from "@/components/NoteList/NoteList";
-import type { Note, PaginatedNotes } from "@/types/note";
+import type { Note } from "@/types/note";
+import type { PaginatedNotes } from "@/types/pagination";
 
 interface NotesClientProps {
   notes: Note[];
-  total: number;
   page: number;
   query: string;
+  totalPages: number;
 }
 
-export default function NotesClient({ notes: initialNotes, total: initialTotal, page, query }: NotesClientProps) {
+export default function NotesClient({
+  notes: initialNotes,
+  page,
+  query,
+  totalPages,
+}: NotesClientProps) {
   const [search, setSearch] = useState(query);
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery<PaginatedNotes>({
     queryKey: ["notes", page, search],
     queryFn: () => fetchNotes(page, 12, search),
     initialData: {
       notes: initialNotes,
-      total: initialTotal,
       page,
-      perPage: 12,
-      totalPages: Math.ceil(initialTotal / 12)
-    } as PaginatedNotes,
-    placeholderData: { 
+      totalPages,
+    },
+    placeholderData: {
       notes: initialNotes,
-      total: initialTotal,
       page,
-      perPage: 12,
-      totalPages: Math.ceil(initialTotal / 12)
-    } as PaginatedNotes,
+      totalPages,
+    },
   });
 
-  const notes = data?.notes || initialNotes;
+  const notes = data?.notes ?? initialNotes;
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
