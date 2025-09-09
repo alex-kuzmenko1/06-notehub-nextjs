@@ -1,46 +1,57 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useQuery, QueryFunctionContext } from "@tanstack/react-query";
 import { fetchNotes } from "@/lib/api";
 import NoteList from "@/components/NoteList/NoteList";
-import type { Note } from "@/types/note";
 import type { PaginatedNotes } from "@/types/pagination";
 
-interface NotesClientProps {
-  notes: Note[];
-  page: number;
-  query: string;
-  totalPages: number;
+
+function useDebounce<T>(value: T, delay: number): T {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+
+  return debounced;
 }
 
-export default function NotesClient({
-  notes: initialNotes,
-  page,
-  query,
-  totalPages,
-}: NotesClientProps) {
-  const [search, setSearch] = useState(query);
+interface NotesClientProps {
+  page: number;
+  query: string;
+}
 
-  const { data, isLoading, error } = useQuery<PaginatedNotes>({
-    queryKey: ["notes", page, search],
-    queryFn: () => fetchNotes(page, 12, search),
-    initialData: {
-      notes: initialNotes,
-      page,
-      totalPages,
+export default function NotesClient({ page: initialPage, query }: NotesClientProps) {
+  const [search, setSearch] = useState(query);
+  const [page, setPage] = useState(initialPage);
+  const debouncedSearch = useDebounce(search, 500);
+
+  
+  const { data, isLoading, error } = useQuery<PaginatedNotes, Error>({
+    queryKey: ["notes", page, debouncedSearch],
+    queryFn: ({ queryKey }: QueryFunctionContext) => {
+      const [, pageParam, searchParam] = queryKey as [string, number, string];
+      return fetchNotes(pageParam, 12, searchParam);
     },
-    placeholderData: {
-      notes: initialNotes,
-      page,
-      totalPages,
-    },
+    staleTime: 1000 * 60, 
   });
 
-  const notes = data?.notes ?? initialNotes;
+  const notes = data?.notes ?? [];
+  const totalPages = data?.totalPages ?? 1;
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
+    setPage(1);
+  };
+
+  const handlePrevPage = () => {
+    if (page > 1) setPage((prev) => prev - 1);
+  };
+
+  const handleNextPage = () => {
+    if (page < totalPages) setPage((prev) => prev + 1);
   };
 
   return (
@@ -54,9 +65,22 @@ export default function NotesClient({
       />
 
       {isLoading && <p>Loading notes...</p>}
-      {error && <p>Failed to load notes.</p>}
+      {error && <p>Failed to load notes: {error.message}</p>}
 
-      <NoteList notes={notes} page={page} query={search} />
+      <NoteList notes={notes} />
+
+      {/* Пагінація */}
+      <div style={{ display: "flex", justifyContent: "center", gap: "1rem", marginTop: "1rem" }}>
+        <button onClick={handlePrevPage} disabled={page === 1}>
+          Prev
+        </button>
+        <span>
+          Page {page} of {totalPages}
+        </span>
+        <button onClick={handleNextPage} disabled={page === totalPages}>
+          Next
+        </button>
+      </div>
     </div>
   );
 }

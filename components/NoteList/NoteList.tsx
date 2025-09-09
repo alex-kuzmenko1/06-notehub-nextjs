@@ -9,11 +9,9 @@ import type { Note } from "@/types/note";
 
 interface NoteListProps {
   notes: Note[];
-  page: number;
-  query: string;
 }
 
-export default function NoteList({ notes, page, query }: NoteListProps) {
+export default function NoteList({ notes }: NoteListProps) {
   const queryClient = useQueryClient();
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
@@ -27,7 +25,7 @@ export default function NoteList({ notes, page, query }: NoteListProps) {
     },
     onSuccess: () => {
       
-      queryClient.invalidateQueries({ queryKey: ["notes", page, query] });
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
     },
     onSettled: () => {
       setIsDeleting(null);
