@@ -13,7 +13,6 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
   const page = Number(searchParams.page) || 1;
   const query = searchParams.query || "";
 
-  
   const queryClient = new QueryClient();
 
   try {
@@ -21,7 +20,6 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
     await queryClient.prefetchQuery({
       queryKey: ["notes", page, query],
       queryFn: () => fetchNotes(page, 12, query),
-      staleTime: 1000 * 60, // 1 хв
     });
 
     return (
@@ -31,7 +29,6 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
     );
   } catch (error) {
     console.error("Failed to prefetch notes:", error);
-
     return (
       <HydrationBoundary state={dehydrate(queryClient)}>
         <NotesClient />
